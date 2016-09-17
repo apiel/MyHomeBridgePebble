@@ -1,37 +1,19 @@
 import restify = require('restify');
-import { SwitchService } from './../services/switch.service';
-import { Switch } from './../models/switch';
+import { PebbleService } from './../services/pebble.service';
 
-export default class SwitchController {
-    constructor(private switchService: SwitchService) {}
+export default class PebbleController {
+    constructor(private pebbleService: PebbleService) {}    
     
-    statusResponse(_switch: Switch, res: restify.Response, next: restify.Next) {
-        if (_switch) {
-            res.json(200, {status: _switch.status});
+    test(req: restify.Request, res: restify.Response, next: restify.Next) {
+        console.log(req.query['text']);
+        if (this.pebbleService.parse(req.query['text'])) {
+            console.log('ok');
+            res.json(200, {keyStatus: 0, keyText: "Sent"});
         }
         else {
-            res.json(200, {error: "unknown key"});
+            console.log('nok');
+            res.json(200, {keyStatus: 101, keyText: "Unknown"});
         }
-        return next();        
-    }
-    
-    status(req: restify.Request, res: restify.Response, next: restify.Next) {
-        let id = req.params['id'];
-        let _switch: Switch = this.switchService.get(id);
-        
-        return this.statusResponse(_switch, res, next);
-    }
-    
-    toggle(req: restify.Request, res: restify.Response, next: restify.Next) {
-        let id = req.params['id'];
-        let _switch: Switch = this.switchService.toggle(id);
-        
-        return this.statusResponse(_switch, res, next);
-    }   
-    
-    //{"name":"Spot light chillarea","button":1,"status":"off","on":{"code":123456,"bit":24,"protocol":1,"delay":180},"off":{"code":654321,"bit":24,"protocol":1,"delay":180}}
-    //add(req: restify.Request, res: restify.Response, next: restify.Next) {
-    //        res.json(200, 'pong');
-    //        return next();
-    //}    
+        return next();
+    }         
 }
